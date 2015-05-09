@@ -1,5 +1,32 @@
 # C-compiler-optimizations
 
+##Branch Optimization
+
+###If optimization
+
+```c
+void f (int *p)
+{
+  if (p) g(1);
+  if (p) g(2);
+  return;
+}
+```
+
+Can be simply replaced by
+
+```c
+void f (int *p) 
+{
+    if (p) {
+        g(1);
+        g(2);
+
+    }
+    return;
+}
+```
+
 
 ###Value Range Optimization
 ```c
@@ -18,6 +45,37 @@ for(int i = 1; i < 100; i++) {
 }
 ```
 
+###Branch elimination
+```c
+goto L1;
+  //do something
+
+L1:
+  goto L2 //L1 branch is unnecessary 
+```
+
+
+
+###Unswitching
+
+As opposed to checking if some condition or the other is true inside of a loop, you can take the ```if``` out of the loop and then loop.
+
+```c
+for (int i = 0; i < N; i++) 
+    if (x)
+        a[i] = 0;
+    else
+        b[i] = 0;
+```
+
+```c
+if (x)
+    for (int i = 0; i < N; i++)
+        a[i] = 0
+else
+    for (int i = 0; i < N; i++)
+        b[i] = 0;
+```
 
 
 ###Tail Recursion
@@ -68,6 +126,8 @@ try {
 
 Can be turned into ```int i = 1;```
 
+##Loop Optimizations
+
 ###Loop unrolling
 
 When the different iterations of a loop are independent
@@ -89,36 +149,75 @@ for (int i = 0; i < 100; i += 2) {
 
 This can of course be done even more aggressively
 
-###Unswitching
-
-As opposed to checking if some condition or the other is true inside of a loop, you can take the ```if``` out of the loop and then loop.
+###Loop Collapsing
 
 ```c
-for (int i = 0; i < N; i++) 
-    if (x)
-        a[i] = 0;
-    else
-        b[i] = 0;
+int a[100][300];
+
+for (i = 0; i < 300; i++)
+  for (j = 0; j < 100; j++)
+    a[j][i] = 0;
+```
+
+Nested loops can be collapsed into a single loop where the index iterates over range(0,\product_j index_j)
+```c
+int a[100][300];
+int *p = &a[0][0];
+
+for (i = 0; i < 30000; i++)
+  *p++ = 0;
+
+```
+
+###Loop fusion
+Two separate loops can be fused together
+
+```c
+for (i = 0; i < 300; i++)
+  a[i] = a[i] + 3;
+
+for (i = 0; i < 300; i++)
+  b[i] = b[i] + 4;
 ```
 
 ```c
-if (x)
-    for (int i = 0; i < N; i++)
-        a[i] = 0
-else
-    for (int i = 0; i < N; i++)
-        b[i] = 0;
-```
-
-###Virtual Function Optimization
-```java
-class TestClass {
-    public void VirtualGetOne() {return ;}
-    public void GetOne() {return ;}
+for (i = 0; i < 300; i++) {
+  a[i] = a[i] + 3;
+  b[i] = b[i] + 4;
 }
-
 ```
 
+###Forward store
+Stores to global variables in loops can be moved out of the loop
+```c
+int sum;
+
+void f (void)
+{
+  int i;
+
+  sum = 0;
+  for (i = 0; i < 100; i++)
+    sum += a[i];
+}
+```
+
+```c
+int sum;
+
+void f (void)
+{
+  int i;
+  register int t;
+
+  t = 0;
+  for (i = 0; i < 100; i++)
+    t += a[i];
+  sum = t;
+}
+```
+
+##Access pattern optimization
 
 ###Volative Optimization
 ```volatile``` keyword is used to declare objects that may have unintended side effects.
@@ -194,15 +293,30 @@ void f (char *s)
 }
 ```
 
-###New expression optimization
-This is more of a thing in java
+###Dead code elimination
 
-```
-int a[];
-a = new int[100];
+Unused code is removed
+```c
+int i = 1;
+return //something else
 ```
 
-If ```a``` is never used then memory is never allocated for it
+###Constant Propagation/Constant folding
+```c
+int x = 3;
+int y = 4 + x; //replaced by y = 7
+
+return (x + y) //replaced by 10
+```
+
+###Instruction combining
+Below is a simple case of this, loop unrolling can reveal instances where instruction combining is possible
+```c
+i++;
+i++;
+
+i += 2
+```
 
 
 ###Narrowing
@@ -259,7 +373,7 @@ int f (int x)
 
 Suppose you had the following code fragment
 
-```c
+```
 int a;
 int b;
 
@@ -283,8 +397,6 @@ L3:                          /* basic block 4 */
 
 The different blocks will be optimized into one
 
-
-
 ```c
 int a;
 int b;
@@ -307,3 +419,46 @@ a   = tmp
 b   = tmp
 return;
 ```
+
+###Function inlining
+
+A lot of optimizations can be discovered if a function call is replaced by the body of the function
+
+Suppose we wish to implement a substraction function given a working addition function
+
+```c
+
+int add (int x, int y)
+{
+  return x + y;
+}
+
+int sub (int x, int y)
+{
+  return add (x, -y);
+}
+```
+  
+Expanding add() at the call site in sub() yields:
+
+```c
+int sub (int x, int y)
+{
+  return x + -y;
+}
+```
+  
+which can be further optimized to:
+
+```c
+int sub (int x, int y)
+{
+  return x - y;
+}
+```
+
+
+
+
+
+  
