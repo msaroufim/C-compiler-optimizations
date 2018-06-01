@@ -1,8 +1,8 @@
 # C-compiler-optimizations
 
-##Branch Optimization
+## Branch Optimization
 
-###If optimization
+### If optimization
 
 ```c
 void f (int *p)
@@ -28,7 +28,7 @@ void f (int *p)
 ```
 
 
-###Value Range Optimization
+### Value Range Optimization
 ```c
 for(int i = 1; i < 100; i++) {
     if (i)
@@ -45,7 +45,7 @@ for(int i = 1; i < 100; i++) {
 }
 ```
 
-###Branch elimination
+### Branch elimination
 ```c
 goto L1;
   //do something
@@ -56,7 +56,7 @@ L1:
 
 
 
-###Unswitching
+### Unswitching
 
 As opposed to checking if some condition or the other is true inside of a loop, you can take the ```if``` out of the loop and then loop.
 
@@ -78,7 +78,7 @@ else
 ```
 
 
-###Tail Recursion
+### Tail Recursion
 
 A tail recursive call can be replaced by a ```goto``` statement which avoids keeping track of the stack frame.
 
@@ -112,7 +112,7 @@ int f (int i) {
 
 ```
 
-###Try/Catch block optimization
+### Try/Catch block optimization
 
 Try/Catch blocks that never throw an exception can be optimized
 
@@ -126,9 +126,9 @@ try {
 
 Can be turned into ```int i = 1;```
 
-##Loop Optimizations
+## Loop Optimizations
 
-###Loop unrolling
+### Loop unrolling
 
 When the different iterations of a loop are independent
 
@@ -149,7 +149,7 @@ for (int i = 0; i < 100; i += 2) {
 
 This can of course be done even more aggressively
 
-###Loop Collapsing
+### Loop Collapsing
 
 ```c
 int a[100][300];
@@ -169,7 +169,7 @@ for (i = 0; i < 30000; i++)
 
 ```
 
-###Loop fusion
+### Loop fusion
 Two separate loops can be fused together
 
 ```c
@@ -187,7 +187,7 @@ for (i = 0; i < 300; i++) {
 }
 ```
 
-###Forward store
+### Forward store
 Stores to global variables in loops can be moved out of the loop
 ```c
 int sum;
@@ -217,9 +217,9 @@ void f (void)
 }
 ```
 
-##Access pattern optimization
+## Access pattern optimization
 
-###Volative Optimization
+### Volative Optimization
 ```volatile``` keyword is used to declare objects that may have unintended side effects.
 
 ```c
@@ -251,7 +251,7 @@ void f (void) {
 However if ```x``` and ```y``` are volatile then this optimization might in fact be incorrect which is why compilers will not perform it.
 
 
-###Quick Optimization
+### Quick Optimization
 
 Accessed objects can be cached into a temporary variable
 ```java
@@ -271,7 +271,7 @@ Below is the code fragment after Quick Optimization.
 }
 ```
   
-###printf Optimization
+### printf Optimization
 Calling ```printf()``` invokes the external library function ```printf()```
 
 ```
@@ -293,7 +293,7 @@ void f (char *s)
 }
 ```
 
-###Dead code elimination
+### Dead code elimination
 
 Unused code is removed
 ```c
@@ -301,7 +301,7 @@ int i = 1;
 return //something else
 ```
 
-###Constant Propagation/Constant folding
+### Constant Propagation/Constant folding
 ```c
 int x = 3;
 int y = 4 + x; //replaced by y = 7
@@ -309,7 +309,7 @@ int y = 4 + x; //replaced by y = 7
 return (x + y) //replaced by 10
 ```
 
-###Instruction combining
+### Instruction combining
 Below is a simple case of this, loop unrolling can reveal instances where instruction combining is possible
 ```c
 i++;
@@ -319,7 +319,7 @@ i += 2
 ```
 
 
-###Narrowing
+### Narrowing
 
 ```c
 unsigned short int s;
@@ -329,7 +329,7 @@ unsigned short int s;
 (s == -1)      /* can't be negative, thus 0 */
 ```
 
-###Integer Multiply
+### Integer Multiply
 
 This a well known one, given an expression 
 
@@ -349,7 +349,7 @@ int f (int i)
 }
 ```
 
-###Integer mod optimization
+### Integer mod optimization
 Another known one, integer divide is really expensive on hardware.
 ```c
 int f (int x,int y)
@@ -369,7 +369,7 @@ int f (int x)
 }
 ```
 
-###Block Merging
+### Block Merging
 
 Suppose you had the following code fragment
 
@@ -410,7 +410,7 @@ void f (int x, int y)
 
 ```
 
-###Common SubExpression
+### Common SubExpression
 The second code fragment above can further be optimzed into 
 
 ```c
@@ -420,7 +420,7 @@ b   = tmp
 return;
 ```
 
-###Function inlining
+### Function inlining
 
 A lot of optimizations can be discovered if a function call is replaced by the body of the function
 
