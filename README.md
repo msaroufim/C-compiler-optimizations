@@ -274,7 +274,7 @@ Below is the code fragment after Quick Optimization.
 ### printf Optimization
 Calling ```printf()``` invokes the external library function ```printf()```
 
-```
+```c
 #include <stdio.h>
 
 void f (char *s)
@@ -373,7 +373,7 @@ int f (int x)
 
 Suppose you had the following code fragment
 
-```
+```c
 int a;
 int b;
 
